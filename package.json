@@ -1,0 +1,16 @@
+{
+  "name": "ingeniapi",
+  "version": "1.0.0",
+  "description": "Esta es una API RESTFul para uso exclusivo de la empresa RRHH Ingenia, su uso sin autorización de la misma será sancionado penalmente ya que será tomado como robo de información, de igual manera cualquier uso externo para fines lucrativos, indebidos o uso ilegales será notificado a las autoridades pertinentes para proceder legalmente contra la persona y/o empresa ajeno en uso de la API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Juan Antonio Paz Zuñiga, antoniopazzuniga@gmail.com",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "puppeteer": "^24.17.0"
+  }
+}
