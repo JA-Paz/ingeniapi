@@ -7,7 +7,7 @@ async function getHomonimos(dataObj) {
   const { nombre, paterno, materno } = dataObj;
 
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
