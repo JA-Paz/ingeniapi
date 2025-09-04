@@ -46,6 +46,7 @@ router.post('/', async (req, res) => {
 
     res.json({
       success: true,
+      message: "Conexión con IngeniAPI exitosa",
       curp: dataByCurp || null,
       rfc: rfcByData || null
     });

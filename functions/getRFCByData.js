@@ -19,8 +19,16 @@ async function getRfcData(dataObj) {
     await page.waitForSelector('input[name="lastNameMaternal"]');
     await page.type('input[name="lastNameMaternal"]', materno);
 
-    await page.waitForSelector('input[name="birthdate"]');
-    await page.type('input[name="birthdate"]', `${dia}${mes}${anio}`);
+
+    await page.$eval('input[name="birthdate"]', (el, dia, mes, anio) => {
+      if (el.type === "date") {
+          el.value = `${anio}-${mes}-${dia}`;
+      } else {
+          el.value = `${dia}/${mes}/${anio}`;
+      }
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    }, dia, mes, anio);
+
 
     await page.click("a.btn-continuar-exec");
 
@@ -29,7 +37,10 @@ async function getRfcData(dataObj) {
 
     return {
       success: true,
-      response: data
+      response: data,
+      dia: dia,
+      mes: mes,
+      anio: anio
     };
 
   } catch (error) {

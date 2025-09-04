@@ -77,6 +77,7 @@ router.post('/', async (req, res) => {
     const rfcByData=await getRfcData({nombre, paterno, materno, dia, mes, anio});
     res.json({
       success: true,
+      message: "Conexión con IngeniAPI exitosa",
       curp: dataByCurp || null,
       rfc: rfcByData || null
     });
