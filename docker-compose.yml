@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+    # Configuración crítica para Chrome en Docker
+    security_opt:
+      - seccomp=unconfined
+      - apparmor=unconfined
+    cap_add:
+      - SYS_ADMIN
+    # Añadir más memoria
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+    restart: unless-stopped
+    # Montar /dev/shm para Chrome
+    tmpfs:
+      - /dev/shm:rw,exec,nosuid,nodev,size=1G
