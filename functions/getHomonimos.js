@@ -13,6 +13,8 @@ async function getHomonimos(dataObj) {
 
   const page = await browser.newPage();
 
+  await page.setViewport({ width: 1366, height: 768 });
+
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
   );
@@ -30,15 +32,18 @@ async function getHomonimos(dataObj) {
     await new Promise((resolve) => setTimeout(resolve, 8000));
 
     await page.waitForSelector(
-      'button.btn.btn-outline-light.margin5px[data-target="#exampleModal"]'
+      'button.btn.btn-outline-light.margin5px[data-target="#exampleModal"]',
+      { timeout: 40000 }
     );
+
     await page.click(
       'button.btn.btn-outline-light.margin5px[data-target="#exampleModal"]'
     );
+    console.log("Click en Acceder");
 
     await page.waitForSelector(
       'input[type="text"][name="txtEmail"][id="txtEmail"][placeholder="Correo electrónico"].form-control',
-      { visible: true, timeout: 20000 }
+      { visible: true, timeout: 40000 }
     );
     console.log("Input de correo encontrado");
 
@@ -47,60 +52,58 @@ async function getHomonimos(dataObj) {
       "RRHHINGENIA2019"
     );
 
-    await page.waitForSelector("#accesoTxtPassword");
+    await page.waitForSelector("#accesoTxtPassword", {
+      visible: true,
+      timeout: 40000,
+    });
+
     await page.type("#accesoTxtPassword", "Rhi123456789");
 
     await page.waitForSelector(
       'input[type="submit"][value="Acceder"].btn.btn-primary.btn-block',
-      { visible: true }
+      { timeout: 40000 }
     );
 
     await Promise.all([
-      page.waitForNavigation({ waitUntil: "networkidle2", timeout: 60000 }),
+      page.waitForNavigation({ waitUntil: "domcontentloaded", timeout: 60000 }),
       page.click(
         'input[type="submit"][value="Acceder"].btn.btn-primary.btn-block'
       ),
     ]);
-
     console.log("Click en botón Acceder");
-    console.log("Sesión iniciada y navegación completada");
 
-    const menus = await page.$$(
-      "a.menu_item.nav-link.dropdown-toggle.no-caret.d-flex.flex-column.align-items-center.text-center.gap-1"
+    await page.waitForSelector("a.menu_item", { timeout: 30000 });
+
+    await page.goto("https://www.buholegal.com/homonimia/", {
+      waitUntil: "domcontentloaded",
+      timeout: 60000,
+    });
+    console.log("Navegación a Homonimia directa");
+
+    await page.waitForFunction(
+      () => {
+        return (
+          document.querySelectorAll('.controlBusqueda input[type="radio"]')
+            .length >= 2
+        );
+      },
+      { timeout: 120000 }
     );
-
-    if (menus.length > 1) {
-      await menus[1].click();
-      console.log("Segundo menú desplegado");
-    } else {
-      console.log("No se encontró el segundo menú");
-    }
-
-    await page.waitForSelector(
-      '.dropdown-menu a.dropdown-item[href="https://www.buholegal.com/homonimia/"]',
-      { visible: true }
-    );
-
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: "networkidle2" }),
-      page.click(
-        '.dropdown-menu a.dropdown-item[href="https://www.buholegal.com/homonimia/"]'
-      ),
-    ]);
-    console.log("Click en Homonimia");
-
-    await page.waitForFunction(() => {
-      return document.querySelectorAll('.controlBusqueda input[type="radio"]').length >= 2;
-    }, { timeout: 20000 });
 
     console.log("Formulario real detectado");
 
-    await page.waitForFunction(() => {
-      return (document.querySelectorAll(".input_control input.form-control").length === 3);
-    },{ timeout: 15000 });
+    await page.waitForFunction(
+      () => {
+        return (
+          document.querySelectorAll(".input_control input.form-control")
+            .length === 3
+        );
+      },
+      { timeout: 4000 }
+    );
 
     await page.waitForSelector("button.btn.formButton.mt-auto", {
-      visible: true,
+      timeout: 40000,
     });
 
     const inputs = await page.$$(".input_control input.form-control");
@@ -112,17 +115,20 @@ async function getHomonimos(dataObj) {
     console.log("Texto escrito en los inputs definitivos");
 
     await page.waitForSelector("button.btn.formButton.mt-auto", {
-      visible: true,
+      timeout: 40000,
     });
 
     await page.click("button.btn.formButton.mt-auto");
 
-    await page.waitForFunction(() => {
-      const rows = document.querySelectorAll("table tbody tr");
-      if (rows.length < 2) return false;
-      const cells = rows[1].querySelectorAll("td");
-      return cells.length >= 2 && cells[1].textContent.trim().length > 0;
-    }, { timeout: 20000 });
+    await page.waitForFunction(
+      () => {
+        const rows = document.querySelectorAll("table tbody tr");
+        if (rows.length < 2) return false;
+        const cells = rows[1].querySelectorAll("td");
+        return cells.length >= 2 && cells[1].textContent.trim().length > 0;
+      },
+      { timeout: 40000 }
+    );
 
     const text = await page.evaluate(() => {
       const tr = document.querySelectorAll("table tbody tr")[1];
@@ -130,7 +136,7 @@ async function getHomonimos(dataObj) {
     });
     console.log("Segundo td del segundo tr:", text);
 
-    let num=0;
+    let num = 0;
 
     if (text !== null) {
       num = parseInt(text, 10);
@@ -141,20 +147,18 @@ async function getHomonimos(dataObj) {
 
     await browser.close();
 
-    return{
+    return {
       success: true,
-      homonimos: num
+      homonimos: num,
     };
-
   } catch (err) {
     console.error("Error en navegación:", err.message);
     await browser.close();
-    return{
+    return {
       success: false,
-      error: err.message
+      error: err.message,
     };
   }
-
 }
 
 module.exports = getHomonimos;
